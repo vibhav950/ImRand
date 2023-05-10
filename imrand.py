@@ -42,7 +42,7 @@ def rand_1(n, bin_img, bin_state):
     N = len(img_arr)
 
     for i in range(n):
-        x, y = (1 - a*(x**2) + y)%N, b*x # chaotic Hénon map
+        x, y = (1 - a*(x**2) + y)%N, b*x
         arr += str(int(img_arr[abs(int(x))]))
     arr = "1" + arr[1:]
 
