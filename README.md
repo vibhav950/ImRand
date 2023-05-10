@@ -11,4 +11,4 @@ Method #1 (for the -range option)
 A SHA512 hash of the input image is calculated which is an integer with a maximum value of 2^512 - 1. This integer is then reduced to one within the specified range using simple modular arithmetic.
 
 Method #2 (for the -nbits option)
-The image is resized and thresholded into a black-and-white format and converted to a stream of 0's and 1's, with the former and latter representing white and black pixels respectively. This array is then traversed in a chaotic manner using a non-linear function to gather the n bits.
+The image is resized and thresholded into a black-and-white format and converted to a stream of 0's and 1's, with the former and latter representing white and black pixels respectively. This array is then traversed in a chaotic manner using a non-linear function to gather the n bits. To choose bits in a chaotic manner, a form of the Hénon map is used (with classical values a = 1.4 and b = 0.3) to generate points within the finite field.
