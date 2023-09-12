@@ -163,7 +163,7 @@ class Random:
         Calls get_nbits() n times to obtain the ranged integers.
         """
 
-        if not ((a <= b) and (a >= 0) and (b >= 0)):
+        if not ((a <= b) and (a >= 0)):
             raise ValueError("a, b: invalid range arguments (expected a <= b; a, b >= 0)")
         
         width = b-a
