@@ -123,7 +123,7 @@ class Random:
         out = 0b0
         for _ in range(nbits):
             state = (state >> 1) | ((((state) ^ (state >> 1) ^ (state >> 2) ^ (state >> 7)) & 0b1) << 127)
-            out = (out << 1) | ((state & (0b1 << 127)) >> 127)
+            out = (out << 1) | (state & 0b1)
 
         if enforce:
             out |= (1 << (nbits-1))
