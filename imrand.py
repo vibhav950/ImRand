@@ -8,7 +8,7 @@ from pyautogui import position as _position
 from math import log as _log
 from time import sleep as _sleep
 
-class Random:
+class ImRand:
     def __init__(self, randengine: int = 0) -> None:
         """
         Used to initialize instances that dont share states.
@@ -44,8 +44,8 @@ class Random:
 
     def _get_random_seed_ibr(self, nbits: int) -> int:
         """
-        Generate a random n-bit long seed, method is preferably called
-        internally to ensure process-safe seed lengths.
+        Generate a random n-bit long seed, this method must be called internally
+        because the seeds need to be thread-safe.
 
         _capture() is called to capture an image; visual features and noise in
         the image positively affect the reliablility of the generator.
@@ -96,7 +96,7 @@ class Random:
                     _sleep(0.2)
 
                 perc = (n_*8 + i + 1)/(nbytes*8)
-                print(f"Completed {int(perc * 100)}% [{'#'*int(perc*50)}{' '*(50 - int(perc*50))}]", end = "\r")
+                print(f"Completed {int(perc * 100):3d}% [{'#'*int(perc*50)}{' '*(50 - int(perc*50))}]", end = "\r")
 
             out = (out << 8) | state
 
@@ -174,65 +174,67 @@ class Random:
             rand_val = a + out % ((b-a)+1)
             print(rand_val)
 
-
-def main():
-
-    def usage_msg():
-        msg = """
+USAGE_MSG = """
 imrand v0.2 - August 16 2023
 
-Usage: python imrand_2.py [mode] [options] [<value1> [<value2> [...]]]
+Usage: python imrand.py [mode] [options] [<value1> [<value2> [...]]]
 
 Mode of operation:
-            -IBR                    Image Based Randomness
-            -CPR                    Cursor Position Randomness
+            --ibr                    Image Based Randomness
+            --cpr                    Cursor Position Randomness
 General options:
-            -h                      print this usage help and exit
-            -nbits  <n>             generate n-bit random integer
-            -range  <a> <b>         generate random int in the interval [a,b]
-            -nrange <a> <b> <n>     generate n random ints in the interval [a,b]
-            -[bin]                  binary output for nbits
+            -h, --help               print this usage help and exit
+            --nbits  <n>             generate n-bit random integer
+            --range  <a> <b>         generate random int in the interval [a,b]
+            --nrange <a> <b> <n>     generate n random ints in the interval [a,b]
+            [--bin]                  binary output for nbits
         """
-        print(msg)
+
+def main():
+    if len(argv) <= 1 or (argv[1] == "-h" or argv[1] == "--help"):
+        print(USAGE_MSG)
         exit(1)
 
-    if len(argv) <= 1 or (argv[1] == "-h" or argv[1] == "--help"):
-        usage_msg()
-    n = len(argv)
-
-    if argv[1] == "-IBR":
-        rand = Random()
-    elif argv[1] == "-CPR":
-        rand = Random(1)
+    if argv[1] == "--ibr":
+        initv = 0
+    elif argv[1] == "--cpr":
+        initv = 1
     else:
-        usage_msg()
+        print(USAGE_MSG)
+        exit(1)
 
+    n = len(argv)
     for i in range(2, n):
-        if argv[i].lower() == "-range":
+        if argv[i].lower() == "--range":
             try:
                 a, b = int(argv[i+1]), int(argv[i+2])
             except ValueError:
-                usage_msg()
-            rand.get_ranged_ints(1, a, b)
+                print(USAGE_MSG)
+                exit(1)
+            ImRand(initv).get_ranged_ints(a, b, 1)
             return
-        
-        if argv[i].lower() == "-nrange":
+        elif argv[i].lower() == "--nrange":
             try:
                 a, b, n = int(argv[i+1]), int(argv[i+2]), int(argv[i+3])
             except ValueError:
-                usage_msg()
-            rand.get_ranged_ints(a, b, n)
+                print(USAGE_MSG)
+                exit(1)
+            ImRand(initv).get_ranged_ints(a, b, n)
             return
-
-        if argv[i].lower() == "-nbits":
-                try:
-                    n = int(argv[i+1])
-                except ValueError:
-                    usage_msg()
-                res = rand.get_nbits(n, enforce = True)
-                
-                if "-bin" in argv[2:n]: print(bin(res)[2:])
-                else: print(res)
+        elif argv[i].lower() == "--nbits":
+            try:
+                n = int(argv[i+1])
+            except ValueError:
+                print(USAGE_MSG)
+                exit(1)
+            res = ImRand(initv).get_nbits(n, enforce = True)
+            
+            if "--bin" in argv[2:n]: print(bin(res)[2:])
+            else: print(res)
+            return
+        else:
+            print(USAGE_MSG)
+            exit(1)
                 
 
 if __name__ == "__main__":
