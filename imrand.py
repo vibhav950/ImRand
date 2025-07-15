@@ -4,7 +4,7 @@ from cv2 import VideoCapture as _VideoCapture, cvtColor as _cvtColor, resize as 
 from cv2 import COLOR_BGR2HSV as _COLOR_BGR2HSV, COLOR_BGR2GRAY as _COLOR_BGR2GRAY, INTER_AREA as _INTER_AREA
 from cv2 import THRESH_BINARY as _THRESH_BINARY, THRESH_OTSU as _THRESH_OTSU
 from hashlib import sha512 as _sha512
-from pyautogui import position as _position
+from pyautogui import position as _position, Point as _Point
 from math import log as _log
 from time import sleep as _sleep
 
@@ -85,17 +85,20 @@ class ImRand:
 
         out = 0b0
         perc = 0
+        prevpos: _Point = None
         for n_ in range(nbytes):
             state = 0b00000000
-            for i in range(8):
+            count = 0
+            while count < 8:
                 pos = _position()
+                if prevpos is not None and pos == prevpos:
+                    continue
+                prevpos = pos
+                count += 1
+
                 state = (state << 1) | ((pos[0] & 0b1) ^ (pos[1] & 0b1))
-                _sleep(0.1)
 
-                while (_position() == pos):
-                    _sleep(0.2)
-
-                perc = (n_*8 + i + 1)/(nbytes*8)
+                perc = (n_*8 + count + 1)/(nbytes*8)
                 print(f"Completed {int(perc * 100):3d}% [{'#'*int(perc*50)}{' '*(50 - int(perc*50))}]", end = "\r")
 
             out = (out << 8) | state
